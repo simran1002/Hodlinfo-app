@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>HODLINFO</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo">HODLINFO</div>
+      <div class="currency">INR</div>
+      <div class="btc">BTC</div>
+      <div class="buy-btc">BUY BTC</div>
+      <div class="telegram">Connect Telegram</div>
+    </div>
+
+    <div class="best-price">
+      <div class="price-stats">
+        <div class="stat">0.1%</div>
+        <div class="stat">0.96%</div>
+        <div class="stat">2.73%</div>
+        <div class="stat">7.51%</div>
+      </div>
+      <div class="price" id="best-price">₹26,56,110</div>
+    </div>
+
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Platform</th>
+            <th>Last Traded Price</th>
+            <th>Buy / Sell Price</th>
+            <th>Difference</th>
+            <th>Savings</th>
+          </tr>
+        </thead>
+        <tbody id="ticker-table-body">
+          <!-- Data will be dynamically populated here -->
+        </tbody>
+      </table>
+    </div>
+
+    <div class="footer">
+      <p>Add hodlinfo to home screen</p>
+    </div>
+  </div>
+
+  <script>
+    // Function to fetch data from the API and populate the table
+    async function fetchTickers() {
+      try {
+        const response = await fetch('http://localhost:3000/get-tickers');
+        const data = await response.json();
+        
+        // Assuming 'data' is an array of tickers
+        const tableBody = document.getElementById('ticker-table-body');
+        tableBody.innerHTML = ''; // Clear the table before populating
+
+        // Iterate through the tickers and populate the table
+        data.forEach((ticker, index) => {
+          const row = document.createElement('tr');
+
+          row.innerHTML = `
+            <td>${index + 1}</td>
+            <td><img src="${ticker.platformLogo}" alt="${ticker.platform} logo"> ${ticker.platform}</td>
+            <td>₹${ticker.lastTradedPrice}</td>
+            <td>₹${ticker.buyPrice}/₹${ticker.sellPrice}</td>
+            <td>${ticker.difference}%</td>
+            <td>${ticker.savings > 0 ? '▲' : '▼'}₹${Math.abs(ticker.savings)}</td>
+          `;
+
+          tableBody.appendChild(row);
+        });
+
+        // Update the best price display
+        const bestPrice = document.getElementById('best-price');
+        bestPrice.textContent = `₹${data[0]?.lastTradedPrice || 'N/A'}`;
+        
+      } catch (error) {
+        console.error('Error fetching tickers:', error);
+      }
+    }
+
+    // Call the fetchTickers function when the page loads
+    window.onload = fetchTickers;
+  </script>
+</body>
+</html>
